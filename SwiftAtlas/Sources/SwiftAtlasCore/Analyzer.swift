@@ -6,15 +6,18 @@
 //
 
 import Foundation
+import SwiftParser
+import SwiftSyntax
 
 public final class Analyzer {
 
     public init() {}
 
-    public func analyze(filePath: String) throws -> String {
+    public func analyze(filePath: String) throws -> SourceFileSyntax {
         let url = URL(fileURLWithPath: filePath)
-        let content = try String(contentsOf: url)
+        let content = try String(contentsOf: url, encoding: .utf8)
+        let sourceFileSyntax = Parser.parse(source: content)
 
-        return "Read file with \(content.count) characters"
+        return sourceFileSyntax
     }
 }

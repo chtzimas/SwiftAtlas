@@ -31,6 +31,10 @@ let package = Package(
             name: "SwiftAtlasCore",
             dependencies: [
                 .product(
+                    name: "SwiftParser",
+                    package: "swift-syntax"
+                ),
+                .product(
                     name: "SwiftSyntax",
                     package: "swift-syntax"
                 )
