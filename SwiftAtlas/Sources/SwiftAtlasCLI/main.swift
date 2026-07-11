@@ -13,9 +13,10 @@ let path = "Samples/Test.swift"
 let analyzer = Analyzer()
 
 do {
-    let result = try analyzer.analyze(filePath: path)
-    print("SwiftAtlas CLI")
-    print(result)
+    let classes = try analyzer.analyze(filePath: path)
+    for className in classes {
+        print("Found class: \(className)")
+    }
 } catch {
     print("Error: \(error)")
 }
