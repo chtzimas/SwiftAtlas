@@ -13,7 +13,10 @@ let path = "Samples/Test.swift"
 let analyzer = Analyzer()
 
 do {
-    let classes = try analyzer.analyze(filePath: path)
+    let url = URL(fileURLWithPath: "Samples/Test.swift")
+    let source = try String(contentsOf: url, encoding: .utf8)
+
+    let classes = analyzer.analyze(source: source)
     for className in classes {
         print("Found class: \(className)")
     }

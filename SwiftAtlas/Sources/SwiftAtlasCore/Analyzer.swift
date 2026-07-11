@@ -13,12 +13,8 @@ public final class Analyzer {
 
     public init() {}
 
-    public func analyze(filePath: String) throws -> [String] {
-
-        let url = URL(fileURLWithPath: filePath)
-        let content = try String(contentsOf: url, encoding: .utf8)
-
-        let sourceFile = Parser.parse(source: content)
+    public func analyze(source: String) -> [String] {
+        let sourceFile = Parser.parse(source: source)
 
         let visitor = ClassVisitor(viewMode: .sourceAccurate)
         visitor.walk(sourceFile)
