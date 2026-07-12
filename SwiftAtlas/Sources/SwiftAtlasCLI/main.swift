@@ -8,14 +8,22 @@
 import Foundation
 import SwiftAtlasCore
 
-let path = "Samples/Test.swift"
-
-let analyzer = Analyzer()
-
 do {
-    let result = try analyzer.analyze(filePath: path)
-    print("SwiftAtlas CLI")
-    print(result)
+    let arguments = CommandLine.arguments
+
+    guard arguments.count == 2 else {
+        print("Wrong number of arguments. Usage: swift run swiftatlas <swift_file_path>")
+        exit(1)
+    }
+
+    let filePath = arguments[1]
+    let source = try String(contentsOf: URL(fileURLWithPath: filePath), encoding: .utf8)
+    let analyzer = Analyzer()
+    
+    let classes = analyzer.analyze(source: source)
+    for className in classes {
+        print("Found class: \(className)")
+    }
 } catch {
     print("Error: \(error)")
 }
