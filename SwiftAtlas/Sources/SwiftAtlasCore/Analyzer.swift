@@ -13,12 +13,13 @@ public final class Analyzer {
 
     public init() {}
 
-    public func analyze(source: String) -> [String] {
+    public func analyze(source: String) -> [ClassNode] {
         let sourceFile = Parser.parse(source: source)
 
         let visitor = ClassVisitor(viewMode: .sourceAccurate)
         visitor.walk(sourceFile)
 
-        return visitor.classes
+        let classNodes = visitor.classes.map { ClassNode(name: $0) }
+        return classNodes
     }
 }

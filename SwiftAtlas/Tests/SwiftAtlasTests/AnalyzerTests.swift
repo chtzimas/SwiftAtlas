@@ -18,12 +18,16 @@ struct AnalyzerTests {
         class User {}
         class Product {}
         """
+        let expectedResult = [
+            ClassNode(name: "User"),
+            ClassNode(name: "Product")
+        ]
         let analyzer = Analyzer()
 
         // When
         let result = analyzer.analyze(source: source)
 
         // Then
-        #expect(result == ["User", "Product"])
+        #expect(result == expectedResult)
     }
 }

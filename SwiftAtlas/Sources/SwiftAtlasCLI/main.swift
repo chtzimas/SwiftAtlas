@@ -20,9 +20,9 @@ do {
     let source = try String(contentsOf: URL(fileURLWithPath: filePath), encoding: .utf8)
     let analyzer = Analyzer()
     
-    let classes = analyzer.analyze(source: source)
-    for className in classes {
-        print("Found class: \(className)")
+    let classNodes = analyzer.analyze(source: source)
+    for node in classNodes {
+        print("Found class: \(node.name)")
     }
 } catch {
     print("Error: \(error)")
