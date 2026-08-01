@@ -22,8 +22,13 @@ do {
     
     let classNodes = analyzer.analyze(source: source)
     for node in classNodes {
+        print("========================================================")
         print("Found class: \(node.name)")
+        if node.hasInheritance {
+            print("Inherits from: \(node.inheritedTypes.joined(separator: ", "))")
+        }
     }
+    print("========================================================")
 } catch {
     print("Error: \(error)")
 }

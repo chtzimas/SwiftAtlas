@@ -15,12 +15,12 @@ struct AnalyzerTests {
 
         // Given
         let source = """
-        class User {}
-        class Product {}
+        class User: Person, Some {}
+        class Dog: Animal, Some {}
         """
         let expectedResult = [
-            ClassNode(name: "User"),
-            ClassNode(name: "Product")
+            ClassNode(name: "User", inheritedTypes: ["Person", "Some"]),
+            ClassNode(name: "Dog", inheritedTypes: ["Animal", "Some"])
         ]
         let analyzer = Analyzer()
 

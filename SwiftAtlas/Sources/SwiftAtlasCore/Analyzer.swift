@@ -19,7 +19,6 @@ public final class Analyzer {
         let visitor = ClassVisitor(viewMode: .sourceAccurate)
         visitor.walk(sourceFile)
 
-        let classNodes = visitor.classes.map { ClassNode(name: $0) }
-        return classNodes
+        return visitor.classes
     }
 }
