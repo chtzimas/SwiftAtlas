@@ -5,30 +5,9 @@ Understand your Swift architecture—without reading thousands of lines of code.
 
 ## Overview
 
-SwiftAtlas is a developer tool that analyzes Swift codebases and builds a high-level representation of their architecture.
+SwiftAtlas is a developer tool that analyzes Swift codebases and builds a high-level representation of their architecture — helping you understand large Swift projects without reading thousands of lines of code.
 
-The long-term vision is to help developers understand large Swift projects by providing:
-
-- Architecture visualization
-- Dependency graphs
-- Module relationships
-- Architecture diffing
-- CI integration
-- AI-assisted architecture insights
-
-## Why?
-
-Understanding an unfamiliar codebase is one of the hardest parts of software development.
-
-SwiftAtlas aims to reduce that friction by transforming Swift source code into an architectural model that can be explored, analyzed, and eventually enforced.
-
-## Design Principles
-
-SwiftAtlas follows a deterministic analysis model.
-
-Architecture information is extracted from Swift source code using static analysis.
-
-AI is intended to augment the experience by explaining and interpreting the architecture—not by generating or guessing it.
+See [CONTEXT.md](CONTEXT.md) for the full project vision, design philosophy, and roadmap.
 
 ## Project Status
 
