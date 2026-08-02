@@ -5,8 +5,8 @@
 //  Created by Christos Tzimas on 11/7/26.
 //
 
-import Testing
 import SwiftAtlasCore
+import Testing
 
 struct AnalyzerTests {
 
@@ -14,16 +14,39 @@ struct AnalyzerTests {
     func extractsClassesFromSource() {
 
         // Given
-        let source = """
-        class User {}
-        class Product {}
-        """
-        let analyzer = Analyzer()
+        let sut = sut
+        let source = sourceFile
+        let expectedResult = sourceFileNode
 
         // When
-        let result = analyzer.analyze(source: source)
+        let result = sut.analyze(source: source)
 
         // Then
-        #expect(result == ["User", "Product"])
+        #expect(result == expectedResult)
+    }
+}
+
+// MARK: - Factory
+
+private extension AnalyzerTests {
+    
+    var sut: Analyzer {
+        Analyzer()
+    }
+    
+    var sourceFile: String {
+        """
+        class User: Person, Some {}
+        class Dog: Animal, Some {}
+        """
+    }
+    
+    var sourceFileNode: SourceFileNode {
+        SourceFileNode(
+            classes: [
+                ClassNode(name: "User", inheritedTypes: ["Person", "Some"]),
+                ClassNode(name: "Dog", inheritedTypes: ["Animal", "Some"])
+            ]
+        )
     }
 }

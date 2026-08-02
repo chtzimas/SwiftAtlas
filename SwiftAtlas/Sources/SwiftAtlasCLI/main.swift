@@ -20,10 +20,15 @@ do {
     let source = try String(contentsOf: URL(fileURLWithPath: filePath), encoding: .utf8)
     let analyzer = Analyzer()
     
-    let classes = analyzer.analyze(source: source)
-    for className in classes {
-        print("Found class: \(className)")
+    let sourceFile = analyzer.analyze(source: source)
+    sourceFile.classes.forEach {
+        print("========================================================")
+        print("Found class: \($0.name)")
+        if $0.hasInheritance {
+            print("Inherits from: \($0.inheritedTypes.joined(separator: ", "))")
+        }
     }
+    print("========================================================")
 } catch {
     print("Error: \(error)")
 }

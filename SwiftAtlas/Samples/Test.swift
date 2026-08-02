@@ -5,6 +5,6 @@
 //  Created by Christos Tzimas on 2/7/26.
 //
 
-class User {
+class User: NSObject, Codable {
     let name: String
 }
