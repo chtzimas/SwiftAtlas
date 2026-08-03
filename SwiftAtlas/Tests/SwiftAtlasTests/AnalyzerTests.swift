@@ -5,6 +5,7 @@
 //  Created by Christos Tzimas on 11/7/26.
 //
 
+import Foundation
 import SwiftAtlasCore
 import Testing
 
@@ -16,13 +17,13 @@ struct AnalyzerTests {
         // Given
         let sut = sut
         let source = sourceFile
-        let expectedResult = sourceFileNode
+        let expectedClasses = classNodes
 
         // When
         let result = sut.analyze(source: source)
 
         // Then
-        #expect(result == expectedResult)
+        #expect(result.classes == expectedClasses)
     }
 
     @Test
@@ -30,7 +31,7 @@ struct AnalyzerTests {
 
         // Given
         let sut = sut
-        let source = structSourceFile
+        let source = sourceFile
         let expectedStructs = structNodes
 
         // When
@@ -45,7 +46,7 @@ struct AnalyzerTests {
 
         // Given
         let sut = sut
-        let source = enumSourceFile
+        let source = sourceFile
         let expectedEnums = enumNodes
 
         // When
@@ -60,7 +61,7 @@ struct AnalyzerTests {
 
         // Given
         let sut = sut
-        let source = protocolSourceFile
+        let source = sourceFile
         let expectedProtocols = protocolNodes
 
         // When
@@ -74,66 +75,45 @@ struct AnalyzerTests {
 // MARK: - Factory
 
 private extension AnalyzerTests {
-    
+
     var sut: Analyzer {
         Analyzer()
     }
-    
+
     var sourceFile: String {
-        """
-        class User: Person, Some {}
-        class Dog: Animal, Some {}
-        """
-    }
-    
-    var sourceFileNode: SourceFileNode {
-        SourceFileNode(
-            classes: [
-                ClassNode(name: "User", inheritedTypes: ["Person", "Some"]),
-                ClassNode(name: "Dog", inheritedTypes: ["Animal", "Some"])
-            ]
-        )
+        let url = Bundle.module.url(
+            forResource: "Sample",
+            withExtension: "swift"
+        )!
+
+        return try! String(contentsOf: url, encoding: .utf8)
     }
 
-    var structSourceFile: String {
-        """
-        struct User: Codable, Equatable {}
-        struct Point {}
-        """
+    var classNodes: [ClassNode] {
+        [
+            ClassNode(name: "User", inheritedTypes: ["Person", "Some"]),
+            ClassNode(name: "Dog", inheritedTypes: ["Animal", "Some"])
+        ]
     }
 
     var structNodes: [StructNode] {
         [
-            StructNode(name: "User", inheritedTypes: ["Codable", "Equatable"]),
+            StructNode(name: "Account", inheritedTypes: ["Codable", "Equatable"]),
             StructNode(name: "Point")
         ]
-    }
-
-    var enumSourceFile: String {
-        """
-        enum Direction: String, CaseIterable {}
-        enum Empty {}
-        """
     }
 
     var enumNodes: [EnumNode] {
         [
             EnumNode(name: "Direction", inheritedTypes: ["String", "CaseIterable"]),
-            EnumNode(name: "Empty")
+            EnumNode(name: "Suit")
         ]
-    }
-
-    var protocolSourceFile: String {
-        """
-        protocol Repository: Fetchable, Storable {}
-        protocol Empty {}
-        """
     }
 
     var protocolNodes: [ProtocolNode] {
         [
             ProtocolNode(name: "Repository", inheritedTypes: ["Fetchable", "Storable"]),
-            ProtocolNode(name: "Empty")
+            ProtocolNode(name: "Loggable")
         ]
     }
 }
