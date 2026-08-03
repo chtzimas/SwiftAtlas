@@ -39,6 +39,21 @@ struct AnalyzerTests {
         // Then
         #expect(result.structs == expectedStructs)
     }
+
+    @Test
+    func extractsEnumsFromSource() {
+
+        // Given
+        let sut = sut
+        let source = enumSourceFile
+        let expectedEnums = enumNodes
+
+        // When
+        let result = sut.analyze(source: source)
+
+        // Then
+        #expect(result.enums == expectedEnums)
+    }
 }
 
 // MARK: - Factory
@@ -76,6 +91,20 @@ private extension AnalyzerTests {
         [
             StructNode(name: "User", inheritedTypes: ["Codable", "Equatable"]),
             StructNode(name: "Point")
+        ]
+    }
+
+    var enumSourceFile: String {
+        """
+        enum Direction: String, CaseIterable {}
+        enum Empty {}
+        """
+    }
+
+    var enumNodes: [EnumNode] {
+        [
+            EnumNode(name: "Direction", inheritedTypes: ["String", "CaseIterable"]),
+            EnumNode(name: "Empty")
         ]
     }
 }

@@ -21,9 +21,13 @@ public final class Analyzer {
         let structVisitor = StructVisitor(viewMode: .sourceAccurate)
         structVisitor.walk(sourceFile)
 
+        let enumVisitor = EnumVisitor(viewMode: .sourceAccurate)
+        enumVisitor.walk(sourceFile)
+
         return SourceFileNode(
             classes: classVisitor.classes,
-            structs: structVisitor.structs
+            structs: structVisitor.structs,
+            enums: enumVisitor.enums
         )
     }
 }
