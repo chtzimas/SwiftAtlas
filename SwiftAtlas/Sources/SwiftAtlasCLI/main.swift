@@ -28,6 +28,27 @@ do {
             print("Inherits from: \($0.inheritedTypes.joined(separator: ", "))")
         }
     }
+    sourceFile.structs.forEach {
+        print("========================================================")
+        print("Found struct: \($0.name)")
+        if $0.hasInheritance {
+            print("Inherits from: \($0.inheritedTypes.joined(separator: ", "))")
+        }
+    }
+    sourceFile.enums.forEach {
+        print("========================================================")
+        print("Found enum: \($0.name)")
+        if $0.hasInheritance {
+            print("Inherits from: \($0.inheritedTypes.joined(separator: ", "))")
+        }
+    }
+    sourceFile.protocols.forEach {
+        print("========================================================")
+        print("Found protocol: \($0.name)")
+        if $0.hasInheritance {
+            print("Inherits from: \($0.inheritedTypes.joined(separator: ", "))")
+        }
+    }
     print("========================================================")
 } catch {
     print("Error: \(error)")
