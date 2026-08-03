@@ -12,13 +12,7 @@ final class ProtocolVisitor: SyntaxVisitor {
     var protocols: [ProtocolNode] = []
 
     override func visit(_ node: ProtocolDeclSyntax) -> SyntaxVisitorContinueKind {
-        let inheritedTypes = node.inheritanceClause?.inheritedTypes.compactMap {
-            guard let identifier = $0.type.as(IdentifierTypeSyntax.self) else {
-                return nil
-            }
-
-            return identifier.name.text
-        } ?? [String]()
+        let inheritedTypes = node.inheritanceClause?.inheritedTypeNames ?? []
         protocols.append(
             ProtocolNode(
                 name: node.name.text,

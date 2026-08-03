@@ -12,13 +12,7 @@ final class EnumVisitor: SyntaxVisitor {
     var enums: [EnumNode] = []
 
     override func visit(_ node: EnumDeclSyntax) -> SyntaxVisitorContinueKind {
-        let inheritedTypes = node.inheritanceClause?.inheritedTypes.compactMap {
-            guard let identifier = $0.type.as(IdentifierTypeSyntax.self) else {
-                return nil
-            }
-
-            return identifier.name.text
-        } ?? [String]()
+        let inheritedTypes = node.inheritanceClause?.inheritedTypeNames ?? []
         enums.append(
             EnumNode(
                 name: node.name.text,
