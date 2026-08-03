@@ -54,6 +54,21 @@ struct AnalyzerTests {
         // Then
         #expect(result.enums == expectedEnums)
     }
+
+    @Test
+    func extractsProtocolsFromSource() {
+
+        // Given
+        let sut = sut
+        let source = protocolSourceFile
+        let expectedProtocols = protocolNodes
+
+        // When
+        let result = sut.analyze(source: source)
+
+        // Then
+        #expect(result.protocols == expectedProtocols)
+    }
 }
 
 // MARK: - Factory
@@ -105,6 +120,20 @@ private extension AnalyzerTests {
         [
             EnumNode(name: "Direction", inheritedTypes: ["String", "CaseIterable"]),
             EnumNode(name: "Empty")
+        ]
+    }
+
+    var protocolSourceFile: String {
+        """
+        protocol Repository: Fetchable, Storable {}
+        protocol Empty {}
+        """
+    }
+
+    var protocolNodes: [ProtocolNode] {
+        [
+            ProtocolNode(name: "Repository", inheritedTypes: ["Fetchable", "Storable"]),
+            ProtocolNode(name: "Empty")
         ]
     }
 }

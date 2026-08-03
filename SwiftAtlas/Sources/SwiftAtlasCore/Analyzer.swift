@@ -24,10 +24,14 @@ public final class Analyzer {
         let enumVisitor = EnumVisitor(viewMode: .sourceAccurate)
         enumVisitor.walk(sourceFile)
 
+        let protocolVisitor = ProtocolVisitor(viewMode: .sourceAccurate)
+        protocolVisitor.walk(sourceFile)
+
         return SourceFileNode(
             classes: classVisitor.classes,
             structs: structVisitor.structs,
-            enums: enumVisitor.enums
+            enums: enumVisitor.enums,
+            protocols: protocolVisitor.protocols
         )
     }
 }
