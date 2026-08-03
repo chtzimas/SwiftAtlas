@@ -15,11 +15,23 @@ public final class Analyzer {
     public func analyze(source: String) -> SourceFileNode {
         let sourceFile = Parser.parse(source: source)
 
-        let visitor = ClassVisitor(viewMode: .sourceAccurate)
-        visitor.walk(sourceFile)
+        let classVisitor = ClassVisitor(viewMode: .sourceAccurate)
+        classVisitor.walk(sourceFile)
+
+        let structVisitor = StructVisitor(viewMode: .sourceAccurate)
+        structVisitor.walk(sourceFile)
+
+        let enumVisitor = EnumVisitor(viewMode: .sourceAccurate)
+        enumVisitor.walk(sourceFile)
+
+        let protocolVisitor = ProtocolVisitor(viewMode: .sourceAccurate)
+        protocolVisitor.walk(sourceFile)
 
         return SourceFileNode(
-            classes: visitor.classes
+            classes: classVisitor.classes,
+            structs: structVisitor.structs,
+            enums: enumVisitor.enums,
+            protocols: protocolVisitor.protocols
         )
     }
 }

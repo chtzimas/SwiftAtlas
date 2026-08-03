@@ -50,6 +50,9 @@ let package = Package(
             name: "SwiftAtlasTests",
             dependencies: [
                 "SwiftAtlasCore"
+            ],
+            resources: [
+                .copy("Fixtures/Sample.txt")
             ]
         )
     ]
