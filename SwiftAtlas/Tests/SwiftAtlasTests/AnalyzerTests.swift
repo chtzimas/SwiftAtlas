@@ -24,6 +24,21 @@ struct AnalyzerTests {
         // Then
         #expect(result == expectedResult)
     }
+
+    @Test
+    func extractsStructsFromSource() {
+
+        // Given
+        let sut = sut
+        let source = structSourceFile
+        let expectedStructs = structNodes
+
+        // When
+        let result = sut.analyze(source: source)
+
+        // Then
+        #expect(result.structs == expectedStructs)
+    }
 }
 
 // MARK: - Factory
@@ -48,5 +63,19 @@ private extension AnalyzerTests {
                 ClassNode(name: "Dog", inheritedTypes: ["Animal", "Some"])
             ]
         )
+    }
+
+    var structSourceFile: String {
+        """
+        struct User: Codable, Equatable {}
+        struct Point {}
+        """
+    }
+
+    var structNodes: [StructNode] {
+        [
+            StructNode(name: "User", inheritedTypes: ["Codable", "Equatable"]),
+            StructNode(name: "Point")
+        ]
     }
 }
