@@ -52,7 +52,7 @@ let package = Package(
                 "SwiftAtlasCore"
             ],
             resources: [
-                .copy("Fixtures/Sample.swift")
+                .copy("Fixtures/Sample.txt")
             ]
         )
     ]

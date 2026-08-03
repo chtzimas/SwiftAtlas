@@ -83,7 +83,7 @@ private extension AnalyzerTests {
     var sourceFile: String {
         let url = Bundle.module.url(
             forResource: "Sample",
-            withExtension: "swift"
+            withExtension: "txt"
         )!
 
         return try! String(contentsOf: url, encoding: .utf8)
