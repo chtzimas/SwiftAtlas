@@ -26,8 +26,9 @@ The current milestone focuses on:
 - [ ] Detect inheritance and protocol conformance
 - [ ] Build an internal graph model
 - [ ] Create CLI (`swiftatlas analyze`)
-- [ ] Visualize the graph in a macOS application
-- [ ] Add architecture rules and CI integration
+- [ ] Detect dependency cycles and fail CI on new ones
+- [ ] Emit architecture diagrams as CI/PR artifacts
+- [ ] Add further architecture rules
 - [ ] Explore AI-assisted architecture analysis
 
 ## License

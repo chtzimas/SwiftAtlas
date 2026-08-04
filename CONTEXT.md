@@ -149,10 +149,13 @@ Current technologies:
 
 Future possibilities:
 
-- SwiftUI macOS application
 - CI integrations
-- Architecture visualization
+- Architecture visualization as CLI-emitted artifacts (e.g. diagrams posted to a pull request)
 - AI-assisted explanations
+
+A standalone macOS application for visualization is not part of the roadmap.
+The CLI, combined with CI-emitted artifacts, covers the visualization need
+without introducing a separate application to maintain.
 
 ---
 
@@ -328,6 +331,13 @@ Potential capabilities:
 - Dependency visualization
 - Inheritance graphs
 - Architecture exploration
+- Dependency cycle detection
+
+First CI goal:
+
+Detect newly introduced dependency cycles and fail a pull request check when
+one appears. This is the first capability targeted for CI enforcement, and it
+requires no configuration or rule authoring from the consuming project.
 
 ---
 
@@ -335,8 +345,7 @@ Potential capabilities:
 
 Potential future capabilities:
 
-- macOS visualization application
-- Interactive architecture diagrams
+- Architecture diagrams as CI/PR artifacts
 - CI architecture reports
 - Architecture rules
 - Pull request architecture diffing
