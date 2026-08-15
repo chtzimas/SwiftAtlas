@@ -1,6 +1,6 @@
 ---
 name: new-feature
-description: Scaffold a new SwiftAtlas feature or bugfix from a roadmap milestone in CONTEXT.md - creates a branch following the v<version>/feature|bugfix/<name> convention and guides implementation per the domain-ownership and separation-of-responsibilities principles. Leaves changes uncommitted for the user to review; only invoke the commit skill when the user explicitly says to commit. Does not push or open a PR (use create-pr for that). Trigger when the user wants to start a new feature/bugfix, says things like "let's implement X", "start the next milestone", or names a roadmap item from CONTEXT.md.
+description: Scaffold a new SwiftAtlas feature or bugfix from a roadmap milestone in CONTEXT.md - creates a branch following the v<version>/feature|bugfix/<name> convention and guides implementation per the domain-ownership and separation-of-responsibilities principles. Leaves changes uncommitted for the user to review; only invoke the commit skill when the user explicitly says to commit. Does not push or open a PR (use open-pr for that). Trigger when the user wants to start a new feature/bugfix, says things like "let's implement X", "start the next milestone", or names a roadmap item from CONTEXT.md.
 ---
 
 # New Feature / Bugfix Workflow
@@ -26,4 +26,4 @@ Follow `CONTEXT.md`'s Core Philosophy and Architectural Principles while impleme
 
 ## 3. Stop and leave changes for review
 
-Once the capability is implemented, stop — do not stage or commit anything. Leave the working tree as-is so the user can review the diff themselves. Only invoke the `commit` skill once the user explicitly asks to commit (e.g. "commit this"); it owns the test-verification and commit-message rules. This skill does not push or open a PR; once committed, hand off to `create-pr` when the user is ready.
+Once the capability is implemented, stop — do not stage or commit anything. Leave the working tree as-is so the user can review the diff themselves. Only invoke the `commit` skill once the user explicitly asks to commit (e.g. "commit this"); it owns the test-verification and commit-message rules. This skill does not push or open a PR; once committed, hand off to `open-pr` when the user is ready.

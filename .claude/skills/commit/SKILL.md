@@ -5,7 +5,7 @@ description: Stage and commit the current changes on a branch, following SwiftAt
 
 # Commit Workflow
 
-Use this skill to turn the current working-tree changes into a single local commit. It does not create branches and does not push — see `new-feature` for branch setup and `create-pr` for pushing/opening a PR.
+Use this skill to turn the current working-tree changes into a single local commit. It does not create branches and does not push — see `new-feature` for branch setup and `open-pr` for pushing/opening a PR.
 
 ## 1. Review the change
 
@@ -33,4 +33,4 @@ Use this skill to turn the current working-tree changes into a single local comm
 
 ## 5. Stop
 
-Do not push. Hand off to `create-pr` when the user is ready to open a PR.
+Do not push. Hand off to `open-pr` when the user is ready to open a PR.
