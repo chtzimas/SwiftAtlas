@@ -8,19 +8,7 @@
 import Foundation
 import SwiftAtlasCore
 
-do {
-    let arguments = CommandLine.arguments
-
-    guard arguments.count == 2 else {
-        print("Wrong number of arguments. Usage: swift run swiftatlas <swift_file_path>")
-        exit(1)
-    }
-
-    let filePath = arguments[1]
-    let source = try String(contentsOf: URL(fileURLWithPath: filePath), encoding: .utf8)
-    let analyzer = Analyzer()
-    
-    let sourceFile = analyzer.analyze(source: source)
+func printResults(for sourceFile: SourceFileNode) {
     sourceFile.classes.forEach {
         print("========================================================")
         print("Found class: \($0.name)")
@@ -50,6 +38,34 @@ do {
         }
     }
     print("========================================================")
+}
+
+do {
+    let arguments = CommandLine.arguments
+
+    guard arguments.count == 2 else {
+        print("Wrong number of arguments. Usage: swift run swiftatlas <swift_file_or_directory_path>")
+        exit(1)
+    }
+
+    let path = arguments[1]
+    var isDirectory: ObjCBool = false
+    guard FileManager.default.fileExists(atPath: path, isDirectory: &isDirectory) else {
+        print("No file or directory found at path: \(path)")
+        exit(1)
+    }
+
+    let analyzer = Analyzer()
+
+    let sourceFiles: [SourceFileNode]
+    if isDirectory.boolValue {
+        sourceFiles = try analyzer.analyze(directory: URL(fileURLWithPath: path))
+    } else {
+        let source = try String(contentsOf: URL(fileURLWithPath: path), encoding: .utf8)
+        sourceFiles = [analyzer.analyze(source: source)]
+    }
+
+    sourceFiles.forEach(printResults(for:))
 } catch {
     print("Error: \(error)")
 }
