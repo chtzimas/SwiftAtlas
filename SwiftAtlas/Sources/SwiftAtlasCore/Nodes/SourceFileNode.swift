@@ -22,4 +22,8 @@ public struct SourceFileNode: Equatable {
         self.enums = enums
         self.protocols = protocols
     }
+
+    public var hasDeclarations: Bool {
+        !classes.isEmpty || !structs.isEmpty || !enums.isEmpty || !protocols.isEmpty
+    }
 }

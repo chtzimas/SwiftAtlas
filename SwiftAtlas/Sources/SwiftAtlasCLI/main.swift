@@ -39,6 +39,8 @@ do {
 }
 
 func printResults(for sourceFile: SourceFileNode) {
+    guard sourceFile.hasDeclarations else { return }
+
     sourceFile.classes.forEach {
         print("========================================================")
         print("Found class: \($0.name)")
