@@ -49,7 +49,7 @@ private extension Analyzer {
     func swiftFileURLs(in directory: URL) -> [URL] {
         let enumerator = FileManager.default.enumerator(
             at: directory,
-            includingPropertiesForKeys: [.isRegularFileKey],
+            includingPropertiesForKeys: nil,
             options: [.skipsHiddenFiles]
         )
 
