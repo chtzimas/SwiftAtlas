@@ -70,6 +70,21 @@ struct AnalyzerTests {
         // Then
         #expect(result.protocols == expectedProtocols)
     }
+
+    @Test
+    func analyzesAllSwiftFilesInDirectory() throws {
+
+        // Given
+        let sut = sut
+        let directory = fixtureDirectory
+        let expectedSourceFiles = directorySourceFiles
+
+        // When
+        let result = try sut.analyze(directory: directory)
+
+        // Then
+        #expect(result == expectedSourceFiles)
+    }
 }
 
 // MARK: - Factory
@@ -87,6 +102,17 @@ private extension AnalyzerTests {
         )!
 
         return try! String(contentsOf: url, encoding: .utf8)
+    }
+
+    var fixtureDirectory: URL {
+        Bundle.module.resourceURL!.appendingPathComponent("Directory")
+    }
+
+    var directorySourceFiles: [SourceFileNode] {
+        [
+            SourceFileNode(classes: [ClassNode(name: "First", inheritedTypes: ["Base"])]),
+            SourceFileNode(structs: [StructNode(name: "Second")])
+        ]
     }
 
     var classNodes: [ClassNode] {

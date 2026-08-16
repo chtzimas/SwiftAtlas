@@ -14,15 +14,15 @@ Use once a PR is open and ready to land on `main`.
 
 ## 2. Draft the squash commit message
 
-- Title: short, imperative — same convention as commit and PR titles.
-- Extended description: reuse the "why / what / how it advances the vision" structure used for PR bodies (see `create-pr`). Nice and descriptive but not too extensive — big picture and reasoning behind decisions, not an implementation walkthrough.
+- Title: short, imperative — same convention as commit and PR titles. Append the PR number in parentheses, e.g. `Add directory analysis (#8)`, matching GitHub's default squash-title convention (this is required because supplying `--subject` below overrides GitHub's automatic `(#N)` suffix).
+- Extended description: reuse the "why / what / how it advances the vision" structure used for PR bodies (see `open-pr`). Nice and descriptive but not too extensive — big picture and reasoning behind decisions, not an implementation walkthrough.
 - Wrap file, type, and function names in backticks. No `Co-Authored-By` trailer.
 
 ## 3. Merge
 
 No confirmation step — invoking this skill is the user's authorization to proceed immediately:
 
-- `gh pr merge <number> --squash --delete-branch --subject "<title>" --body "<extended description>"`
+- `gh pr merge <number> --squash --delete-branch --subject "<title> (#<number>)" --body "<extended description>"`
 
 ## 4. Clean up locally
 

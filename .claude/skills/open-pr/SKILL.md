@@ -1,5 +1,5 @@
 ---
-name: create-pr
+name: open-pr
 description: Push the current feature/bugfix branch and open a GitHub PR for it, following SwiftAtlas's PR philosophy from CONTEXT.md (why the change exists, what capability it introduces, how it contributes to the roadmap). Invoking this skill is itself the user's authorization to push and open the PR immediately, with no additional confirmation step. Trigger when the user says "open a PR", "create the PR", "push this branch", or after finishing work started with new-feature.
 ---
 
