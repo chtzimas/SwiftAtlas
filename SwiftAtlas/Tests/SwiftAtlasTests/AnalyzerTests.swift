@@ -143,10 +143,6 @@ private extension AnalyzerTests {
                     sourceFiles: [SourceFileNode(classes: [ClassNode(name: "Alpha", inheritedTypes: ["Base"])])]
                 ),
                 ModuleNode(
-                    name: "FeatureATests",
-                    sourceFiles: [SourceFileNode(structs: [StructNode(name: "Gamma")])]
-                ),
-                ModuleNode(
                     name: "FeatureB",
                     sourceFiles: [SourceFileNode(structs: [StructNode(name: "Beta")])]
                 )

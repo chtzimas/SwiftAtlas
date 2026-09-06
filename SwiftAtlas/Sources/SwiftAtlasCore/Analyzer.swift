@@ -113,6 +113,8 @@ private extension Analyzer {
     }
 
     func sourceDirectory(for target: PackageManifest.Target, packageDirectory: URL) -> URL? {
+        guard target.type != "test" else { return nil }
+
         if let path = target.path {
             return packageDirectory.appendingPathComponent(path)
         }
@@ -120,8 +122,6 @@ private extension Analyzer {
         switch target.type {
         case "regular", "executable", "macro", "plugin":
             return packageDirectory.appendingPathComponent("Sources").appendingPathComponent(target.name)
-        case "test":
-            return packageDirectory.appendingPathComponent("Tests").appendingPathComponent(target.name)
         default:
             return nil
         }
