@@ -43,7 +43,7 @@ public final class Analyzer {
         }
     }
 
-    public func analyze(package directory: URL) throws -> [ModuleNode] {
+    public func analyze(package directory: URL) throws -> ProjectNode {
         let manifest = try packageManifest(at: directory)
 
         var modules: [ModuleNode] = []
@@ -57,13 +57,14 @@ public final class Analyzer {
             modules.append(ModuleNode(name: target.name, sourceFiles: sourceFiles))
         }
 
-        return modules.sorted { $0.name < $1.name }
+        return ProjectNode(name: manifest.name, modules: modules.sorted { $0.name < $1.name })
     }
 }
 
 private extension Analyzer {
 
     struct PackageManifest: Decodable {
+        let name: String
         let targets: [Target]
 
         struct Target: Decodable {

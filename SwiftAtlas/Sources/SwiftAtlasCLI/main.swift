@@ -30,8 +30,7 @@ do {
         let packageManifestPath = directoryURL.appendingPathComponent("Package.swift").path
 
         if FileManager.default.fileExists(atPath: packageManifestPath) {
-            let modules = try analyzer.analyze(package: directoryURL)
-            modules.forEach(printResults(for:))
+            printResults(for: try analyzer.analyze(package: directoryURL))
         } else {
             let sourceFiles = try analyzer.analyze(directory: directoryURL)
             sourceFiles.forEach(printResults(for:))
@@ -42,6 +41,13 @@ do {
     }
 } catch {
     print("Error: \(error)")
+}
+
+func printResults(for project: ProjectNode) {
+    guard project.hasDeclarations else { return }
+
+    print("Project: \(project.name)")
+    project.modules.forEach(printResults(for:))
 }
 
 func printResults(for module: ModuleNode) {
