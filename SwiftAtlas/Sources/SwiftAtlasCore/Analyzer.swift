@@ -69,8 +69,32 @@ private extension Analyzer {
 
         struct Target: Decodable {
             let name: String
-            let type: String
+            let type: TargetType
             let path: String?
+        }
+
+        enum TargetType: Decodable {
+            case regular
+            case executable
+            case test
+            case system
+            case binary
+            case plugin
+            case macro
+            case unknown(String)
+
+            init(from decoder: Decoder) throws {
+                switch try decoder.singleValueContainer().decode(String.self) {
+                case "regular": self = .regular
+                case "executable": self = .executable
+                case "test": self = .test
+                case "system": self = .system
+                case "binary": self = .binary
+                case "plugin": self = .plugin
+                case "macro": self = .macro
+                case let other: self = .unknown(other)
+                }
+            }
         }
     }
 
@@ -113,16 +137,13 @@ private extension Analyzer {
     }
 
     func sourceDirectory(for target: PackageManifest.Target, packageDirectory: URL) -> URL? {
-        guard target.type != "test" else { return nil }
-
-        if let path = target.path {
-            return packageDirectory.appendingPathComponent(path)
-        }
-
         switch target.type {
-        case "regular", "executable", "macro", "plugin":
+        case .regular, .executable, .macro, .plugin:
+            if let path = target.path {
+                return packageDirectory.appendingPathComponent(path)
+            }
             return packageDirectory.appendingPathComponent("Sources").appendingPathComponent(target.name)
-        default:
+        case .test, .system, .binary, .unknown:
             return nil
         }
     }
