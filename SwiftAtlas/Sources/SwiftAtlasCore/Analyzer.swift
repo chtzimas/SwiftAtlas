@@ -100,10 +100,10 @@ private extension Analyzer {
         try process.run()
         process.waitUntilExit()
 
-        let outputData = outputPipe.fileHandleForReading.readDataToEndOfFile()
+        let outputData = try outputPipe.fileHandleForReading.readToEnd() ?? Data()
 
         guard process.terminationStatus == 0 else {
-            let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
+            let errorData = try errorPipe.fileHandleForReading.readToEnd() ?? Data()
             let message = String(data: errorData, encoding: .utf8) ?? "Unknown error"
             throw AnalyzerError.packageManifestReadFailed(message)
         }
