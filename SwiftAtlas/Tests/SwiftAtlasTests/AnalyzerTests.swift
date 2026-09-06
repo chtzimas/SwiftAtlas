@@ -87,18 +87,18 @@ struct AnalyzerTests {
     }
 
     @Test
-    func analyzesModulesInPackage() throws {
+    func analyzesProjectStructureInPackage() throws {
 
         // Given
         let sut = sut
         let directory = fixturePackageDirectory
-        let expectedModules = packageModules
+        let expectedProject = fixtureProject
 
         // When
         let result = try sut.analyze(package: directory)
 
         // Then
-        #expect(result == expectedModules)
+        #expect(result == expectedProject)
     }
 }
 
@@ -125,8 +125,8 @@ private extension AnalyzerTests {
 
     var directorySourceFiles: [SourceFileNode] {
         [
-            SourceFileNode(classes: [ClassNode(name: "First", inheritedTypes: ["Base"])]),
-            SourceFileNode(structs: [StructNode(name: "Second")])
+            SourceFileNode(name: "First.swift", classes: [ClassNode(name: "First", inheritedTypes: ["Base"])]),
+            SourceFileNode(name: "Second.swift", structs: [StructNode(name: "Second")])
         ]
     }
 
@@ -134,21 +134,22 @@ private extension AnalyzerTests {
         Bundle.module.resourceURL!.appendingPathComponent("Package")
     }
 
-    var packageModules: [ModuleNode] {
-        [
-            ModuleNode(
-                name: "FeatureA",
-                sourceFiles: [SourceFileNode(classes: [ClassNode(name: "Alpha", inheritedTypes: ["Base"])])]
-            ),
-            ModuleNode(
-                name: "FeatureATests",
-                sourceFiles: [SourceFileNode(structs: [StructNode(name: "Gamma")])]
-            ),
-            ModuleNode(
-                name: "FeatureB",
-                sourceFiles: [SourceFileNode(structs: [StructNode(name: "Beta")])]
-            )
-        ]
+    var fixtureProject: ProjectNode {
+        ProjectNode(
+            name: "Fixture",
+            modules: [
+                ModuleNode(
+                    name: "FeatureA",
+                    sourceFiles: [
+                        SourceFileNode(name: "TypeA.swift", classes: [ClassNode(name: "Alpha", inheritedTypes: ["Base"])])
+                    ]
+                ),
+                ModuleNode(
+                    name: "FeatureB",
+                    sourceFiles: [SourceFileNode(name: "TypeB.swift", structs: [StructNode(name: "Beta")])]
+                )
+            ]
+        )
     }
 
     var classNodes: [ClassNode] {
