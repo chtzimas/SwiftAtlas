@@ -25,17 +25,30 @@ do {
 
     let analyzer = Analyzer()
 
-    let sourceFiles: [SourceFileNode]
     if isDirectory.boolValue {
-        sourceFiles = try analyzer.analyze(directory: URL(fileURLWithPath: path))
+        let directoryURL = URL(fileURLWithPath: path)
+        let packageManifestPath = directoryURL.appendingPathComponent("Package.swift").path
+
+        if FileManager.default.fileExists(atPath: packageManifestPath) {
+            let modules = try analyzer.analyze(package: directoryURL)
+            modules.forEach(printResults(for:))
+        } else {
+            let sourceFiles = try analyzer.analyze(directory: directoryURL)
+            sourceFiles.forEach(printResults(for:))
+        }
     } else {
         let source = try String(contentsOf: URL(fileURLWithPath: path), encoding: .utf8)
-        sourceFiles = [analyzer.analyze(source: source)]
+        printResults(for: analyzer.analyze(source: source))
     }
-
-    sourceFiles.forEach(printResults(for:))
 } catch {
     print("Error: \(error)")
+}
+
+func printResults(for module: ModuleNode) {
+    guard module.hasDeclarations else { return }
+
+    print("Module: \(module.name)")
+    module.sourceFiles.forEach(printResults(for:))
 }
 
 func printResults(for sourceFile: SourceFileNode) {
