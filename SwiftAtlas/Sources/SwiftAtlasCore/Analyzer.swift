@@ -39,7 +39,7 @@ public final class Analyzer {
     public func analyze(directory: URL) throws -> [SourceFileNode] {
         try swiftFileURLs(in: directory).map { url in
             let source = try String(contentsOf: url, encoding: .utf8)
-            return analyze(source: source)
+            return analyze(source: source).renamed(to: url.lastPathComponent)
         }
     }
 

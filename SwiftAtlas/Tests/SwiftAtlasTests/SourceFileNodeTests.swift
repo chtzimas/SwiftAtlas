@@ -59,4 +59,17 @@ struct SourceFileNodeTests {
         // Then
         #expect(sut.hasDeclarations == true)
     }
+
+    @Test
+    func renamedPreservesDeclarationsAndChangesName() {
+
+        // Given
+        let sut = SourceFileNode(classes: [ClassNode(name: "User")])
+
+        // When
+        let result = sut.renamed(to: "User.swift")
+
+        // Then
+        #expect(result == SourceFileNode(name: "User.swift", classes: [ClassNode(name: "User")]))
+    }
 }

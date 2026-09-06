@@ -125,8 +125,8 @@ private extension AnalyzerTests {
 
     var directorySourceFiles: [SourceFileNode] {
         [
-            SourceFileNode(classes: [ClassNode(name: "First", inheritedTypes: ["Base"])]),
-            SourceFileNode(structs: [StructNode(name: "Second")])
+            SourceFileNode(name: "First.swift", classes: [ClassNode(name: "First", inheritedTypes: ["Base"])]),
+            SourceFileNode(name: "Second.swift", structs: [StructNode(name: "Second")])
         ]
     }
 
@@ -140,11 +140,13 @@ private extension AnalyzerTests {
             modules: [
                 ModuleNode(
                     name: "FeatureA",
-                    sourceFiles: [SourceFileNode(classes: [ClassNode(name: "Alpha", inheritedTypes: ["Base"])])]
+                    sourceFiles: [
+                        SourceFileNode(name: "TypeA.swift", classes: [ClassNode(name: "Alpha", inheritedTypes: ["Base"])])
+                    ]
                 ),
                 ModuleNode(
                     name: "FeatureB",
-                    sourceFiles: [SourceFileNode(structs: [StructNode(name: "Beta")])]
+                    sourceFiles: [SourceFileNode(name: "TypeB.swift", structs: [StructNode(name: "Beta")])]
                 )
             ]
         )
