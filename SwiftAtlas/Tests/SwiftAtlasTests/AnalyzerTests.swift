@@ -85,6 +85,21 @@ struct AnalyzerTests {
         // Then
         #expect(result == expectedSourceFiles)
     }
+
+    @Test
+    func analyzesModulesInPackage() throws {
+
+        // Given
+        let sut = sut
+        let directory = fixturePackageDirectory
+        let expectedModules = packageModules
+
+        // When
+        let result = try sut.analyze(package: directory)
+
+        // Then
+        #expect(result == expectedModules)
+    }
 }
 
 // MARK: - Factory
@@ -112,6 +127,27 @@ private extension AnalyzerTests {
         [
             SourceFileNode(classes: [ClassNode(name: "First", inheritedTypes: ["Base"])]),
             SourceFileNode(structs: [StructNode(name: "Second")])
+        ]
+    }
+
+    var fixturePackageDirectory: URL {
+        Bundle.module.resourceURL!.appendingPathComponent("Package")
+    }
+
+    var packageModules: [ModuleNode] {
+        [
+            ModuleNode(
+                name: "FeatureA",
+                sourceFiles: [SourceFileNode(classes: [ClassNode(name: "Alpha", inheritedTypes: ["Base"])])]
+            ),
+            ModuleNode(
+                name: "FeatureATests",
+                sourceFiles: [SourceFileNode(structs: [StructNode(name: "Gamma")])]
+            ),
+            ModuleNode(
+                name: "FeatureB",
+                sourceFiles: [SourceFileNode(structs: [StructNode(name: "Beta")])]
+            )
         ]
     }
 

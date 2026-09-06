@@ -42,9 +42,36 @@ public final class Analyzer {
             return analyze(source: source)
         }
     }
+
+    public func analyze(package directory: URL) throws -> [ModuleNode] {
+        let manifest = try packageManifest(at: directory)
+
+        var modules: [ModuleNode] = []
+        for target in manifest.targets {
+            guard let targetDirectory = sourceDirectory(for: target, packageDirectory: directory),
+                  FileManager.default.fileExists(atPath: targetDirectory.path) else {
+                continue
+            }
+
+            let sourceFiles = try analyze(directory: targetDirectory)
+            modules.append(ModuleNode(name: target.name, sourceFiles: sourceFiles))
+        }
+
+        return modules.sorted { $0.name < $1.name }
+    }
 }
 
 private extension Analyzer {
+
+    struct PackageManifest: Decodable {
+        let targets: [Target]
+
+        struct Target: Decodable {
+            let name: String
+            let type: String
+            let path: String?
+        }
+    }
 
     func swiftFileURLs(in directory: URL) -> [URL] {
         let enumerator = FileManager.default.enumerator(
@@ -58,5 +85,44 @@ private extension Analyzer {
         return urls
             .filter { $0.pathExtension == "swift" }
             .sorted { $0.path < $1.path }
+    }
+
+    func packageManifest(at directory: URL) throws -> PackageManifest {
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
+        process.arguments = ["swift", "package", "--package-path", directory.path, "dump-package"]
+
+        let outputPipe = Pipe()
+        let errorPipe = Pipe()
+        process.standardOutput = outputPipe
+        process.standardError = errorPipe
+
+        try process.run()
+        process.waitUntilExit()
+
+        let outputData = outputPipe.fileHandleForReading.readDataToEndOfFile()
+
+        guard process.terminationStatus == 0 else {
+            let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
+            let message = String(data: errorData, encoding: .utf8) ?? "Unknown error"
+            throw AnalyzerError.packageManifestReadFailed(message)
+        }
+
+        return try JSONDecoder().decode(PackageManifest.self, from: outputData)
+    }
+
+    func sourceDirectory(for target: PackageManifest.Target, packageDirectory: URL) -> URL? {
+        if let path = target.path {
+            return packageDirectory.appendingPathComponent(path)
+        }
+
+        switch target.type {
+        case "regular", "executable", "macro", "plugin":
+            return packageDirectory.appendingPathComponent("Sources").appendingPathComponent(target.name)
+        case "test":
+            return packageDirectory.appendingPathComponent("Tests").appendingPathComponent(target.name)
+        default:
+            return nil
+        }
     }
 }

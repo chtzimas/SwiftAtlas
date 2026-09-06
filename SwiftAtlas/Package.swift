@@ -53,7 +53,8 @@ let package = Package(
             ],
             resources: [
                 .copy("Fixtures/Sample.txt"),
-                .copy("Fixtures/Directory")
+                .copy("Fixtures/Directory"),
+                .copy("Fixtures/Package")
             ]
         )
     ]
