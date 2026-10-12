@@ -16,7 +16,7 @@ final class StructVisitor: SyntaxVisitor {
         structs.append(
             StructNode(
                 name: node.name.text,
-                inheritedTypes: inheritedTypes
+                inheritedTypes: inheritedTypes.map(TypeReference.unresolved)
             )
         )
 

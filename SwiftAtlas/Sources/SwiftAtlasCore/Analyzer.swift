@@ -57,7 +57,9 @@ public final class Analyzer {
             modules.append(ModuleNode(name: target.name, sourceFiles: sourceFiles))
         }
 
-        return ProjectNode(name: manifest.name, modules: modules.sorted { $0.name < $1.name })
+        let project = ProjectNode(name: manifest.name, modules: modules.sorted { $0.name < $1.name })
+
+        return TypeResolver().resolve(project)
     }
 }
 

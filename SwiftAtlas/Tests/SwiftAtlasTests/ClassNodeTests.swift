@@ -24,7 +24,7 @@ struct ClassNodeTests {
     func hasInheritanceIsTrueWhenInheritedTypesArePresent() {
 
         // Given
-        let sut = ClassNode(name: "User", inheritedTypes: ["Person"])
+        let sut = ClassNode(name: "User", inheritedTypes: [.unresolved("Person")])
 
         // Then
         #expect(sut.hasInheritance == true)

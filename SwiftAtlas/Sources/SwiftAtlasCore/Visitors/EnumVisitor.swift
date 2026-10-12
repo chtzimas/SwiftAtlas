@@ -16,7 +16,7 @@ final class EnumVisitor: SyntaxVisitor {
         enums.append(
             EnumNode(
                 name: node.name.text,
-                inheritedTypes: inheritedTypes
+                inheritedTypes: inheritedTypes.map(TypeReference.unresolved)
             )
         )
 

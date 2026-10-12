@@ -125,7 +125,7 @@ private extension AnalyzerTests {
 
     var directorySourceFiles: [SourceFileNode] {
         [
-            SourceFileNode(name: "First.swift", classes: [ClassNode(name: "First", inheritedTypes: ["Base"])]),
+            SourceFileNode(name: "First.swift", classes: [ClassNode(name: "First", inheritedTypes: [.unresolved("Base")])]),
             SourceFileNode(name: "Second.swift", structs: [StructNode(name: "Second")])
         ]
     }
@@ -141,12 +141,35 @@ private extension AnalyzerTests {
                 ModuleNode(
                     name: "FeatureA",
                     sourceFiles: [
-                        SourceFileNode(name: "TypeA.swift", classes: [ClassNode(name: "Alpha", inheritedTypes: ["Base"])])
+                        SourceFileNode(
+                            name: "TypeA.swift",
+                            classes: [
+                                ClassNode(name: "Alpha", inheritedTypes: [.external("Base")]),
+                                ClassNode(
+                                    name: "Gamma",
+                                    inheritedTypes: [.resolved(TypeIdentity(module: "FeatureA", name: "Alpha", kind: .class))]
+                                )
+                            ],
+                            structs: [StructNode(name: "Epsilon", inheritedTypes: [.ambiguous("Shared")])],
+                            protocols: [ProtocolNode(name: "Shared")]
+                        )
                     ]
                 ),
                 ModuleNode(
                     name: "FeatureB",
-                    sourceFiles: [SourceFileNode(name: "TypeB.swift", structs: [StructNode(name: "Beta")])]
+                    sourceFiles: [
+                        SourceFileNode(
+                            name: "TypeB.swift",
+                            classes: [
+                                ClassNode(
+                                    name: "Delta",
+                                    inheritedTypes: [.resolved(TypeIdentity(module: "FeatureA", name: "Alpha", kind: .class))]
+                                )
+                            ],
+                            structs: [StructNode(name: "Beta")],
+                            protocols: [ProtocolNode(name: "Shared")]
+                        )
+                    ]
                 )
             ]
         )
@@ -154,28 +177,28 @@ private extension AnalyzerTests {
 
     var classNodes: [ClassNode] {
         [
-            ClassNode(name: "User", inheritedTypes: ["Person", "Some"]),
-            ClassNode(name: "Dog", inheritedTypes: ["Animal", "Some"])
+            ClassNode(name: "User", inheritedTypes: [.unresolved("Person"), .unresolved("Some")]),
+            ClassNode(name: "Dog", inheritedTypes: [.unresolved("Animal"), .unresolved("Some")])
         ]
     }
 
     var structNodes: [StructNode] {
         [
-            StructNode(name: "Account", inheritedTypes: ["Codable", "Equatable"]),
+            StructNode(name: "Account", inheritedTypes: [.unresolved("Codable"), .unresolved("Equatable")]),
             StructNode(name: "Point")
         ]
     }
 
     var enumNodes: [EnumNode] {
         [
-            EnumNode(name: "Direction", inheritedTypes: ["String", "CaseIterable"]),
+            EnumNode(name: "Direction", inheritedTypes: [.unresolved("String"), .unresolved("CaseIterable")]),
             EnumNode(name: "Suit")
         ]
     }
 
     var protocolNodes: [ProtocolNode] {
         [
-            ProtocolNode(name: "Repository", inheritedTypes: ["Fetchable", "Storable"]),
+            ProtocolNode(name: "Repository", inheritedTypes: [.unresolved("Fetchable"), .unresolved("Storable")]),
             ProtocolNode(name: "Loggable")
         ]
     }

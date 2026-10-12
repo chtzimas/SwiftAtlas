@@ -16,7 +16,7 @@ final class ProtocolVisitor: SyntaxVisitor {
         protocols.append(
             ProtocolNode(
                 name: node.name.text,
-                inheritedTypes: inheritedTypes
+                inheritedTypes: inheritedTypes.map(TypeReference.unresolved)
             )
         )
 
