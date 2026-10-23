@@ -7,9 +7,9 @@
 
 public struct ProtocolNode: Equatable {
     public let name: String
-    public let inheritedTypes: [String]
+    public let inheritedTypes: [TypeReference]
 
-    public init(name: String, inheritedTypes: [String] = []) {
+    public init(name: String, inheritedTypes: [TypeReference] = []) {
         self.name = name
         self.inheritedTypes = inheritedTypes
     }

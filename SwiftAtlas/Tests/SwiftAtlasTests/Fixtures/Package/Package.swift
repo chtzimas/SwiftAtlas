@@ -6,7 +6,7 @@ let package = Package(
     name: "Fixture",
     targets: [
         .target(name: "FeatureA"),
-        .target(name: "FeatureB"),
+        .target(name: "FeatureB", dependencies: ["FeatureA"]),
         .testTarget(name: "FeatureATests")
     ]
 )

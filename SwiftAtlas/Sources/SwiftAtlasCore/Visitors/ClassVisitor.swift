@@ -16,7 +16,7 @@ final class ClassVisitor: SyntaxVisitor {
         classes.append(
             ClassNode(
                 name: node.name.text,
-                inheritedTypes: inheritedTypes
+                inheritedTypes: inheritedTypes.map(TypeReference.unresolved)
             )
         )
 

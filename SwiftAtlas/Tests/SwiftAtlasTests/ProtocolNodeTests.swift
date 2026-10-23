@@ -24,7 +24,7 @@ struct ProtocolNodeTests {
     func hasInheritanceIsTrueWhenInheritedTypesArePresent() {
 
         // Given
-        let sut = ProtocolNode(name: "Repository", inheritedTypes: ["Fetchable"])
+        let sut = ProtocolNode(name: "Repository", inheritedTypes: [.unresolved("Fetchable")])
 
         // Then
         #expect(sut.hasInheritance == true)

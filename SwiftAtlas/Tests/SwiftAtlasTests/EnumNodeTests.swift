@@ -24,7 +24,7 @@ struct EnumNodeTests {
     func hasInheritanceIsTrueWhenInheritedTypesArePresent() {
 
         // Given
-        let sut = EnumNode(name: "Direction", inheritedTypes: ["String"])
+        let sut = EnumNode(name: "Direction", inheritedTypes: [.unresolved("String")])
 
         // Then
         #expect(sut.hasInheritance == true)

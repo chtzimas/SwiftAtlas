@@ -24,7 +24,7 @@ struct StructNodeTests {
     func hasInheritanceIsTrueWhenInheritedTypesArePresent() {
 
         // Given
-        let sut = StructNode(name: "Account", inheritedTypes: ["Codable"])
+        let sut = StructNode(name: "Account", inheritedTypes: [.unresolved("Codable")])
 
         // Then
         #expect(sut.hasInheritance == true)
