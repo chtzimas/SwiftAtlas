@@ -8,10 +8,12 @@
 public struct ClassNode: Equatable {
     public let name: String
     public let inheritedTypes: [TypeReference]
+    public let properties: [PropertyNode]
 
-    public init(name: String, inheritedTypes: [TypeReference] = []) {
+    public init(name: String, inheritedTypes: [TypeReference] = [], properties: [PropertyNode] = []) {
         self.name = name
         self.inheritedTypes = inheritedTypes
+        self.properties = properties
     }
     
     public var hasInheritance: Bool {
