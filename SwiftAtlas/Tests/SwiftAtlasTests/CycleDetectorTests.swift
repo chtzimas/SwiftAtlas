@@ -90,6 +90,73 @@ struct CycleDetectorTests {
         // Then
         #expect(result.isEmpty)
     }
+
+    @Test
+    func excludesACycleAlreadyPresentInBase() {
+
+        // Given
+        let sut = CycleDetector()
+        let cyclicGraph = DependencyGraph(nodes: [alpha, beta], edges: [alpha: [beta], beta: [alpha]])
+
+        // When
+        let result = sut.detectNewCycles(in: cyclicGraph, comparedTo: cyclicGraph)
+
+        // Then
+        #expect(result.isEmpty)
+    }
+
+    @Test
+    func includesACycleOnlyPresentInHead() {
+
+        // Given
+        let sut = CycleDetector()
+        let base = DependencyGraph(nodes: [alpha, beta], edges: [alpha: [beta]])
+        let head = DependencyGraph(nodes: [alpha, beta], edges: [alpha: [beta], beta: [alpha]])
+
+        // When
+        let result = sut.detectNewCycles(in: head, comparedTo: base)
+
+        // Then
+        #expect(result == [Cycle(path: [alpha, beta])])
+    }
+
+    @Test
+    func reportsNothingForACycleOnlyPresentInBase() {
+
+        // Given: the cycle was fixed between base and head
+        let sut = CycleDetector()
+        let base = DependencyGraph(nodes: [alpha, beta], edges: [alpha: [beta], beta: [alpha]])
+        let head = DependencyGraph(nodes: [alpha, beta], edges: [alpha: [beta]])
+
+        // When
+        let result = sut.detectNewCycles(in: head, comparedTo: base)
+
+        // Then
+        #expect(result.isEmpty)
+    }
+
+    @Test
+    func reportsOnlyTheNewCycleAmongAMixOfNewAndPreExisting() {
+
+        // Given: alpha<->beta exists in both; gamma<->delta is new to head
+        let sut = CycleDetector()
+        let base = DependencyGraph(nodes: [alpha, beta], edges: [alpha: [beta], beta: [alpha]])
+        let head = DependencyGraph(
+            nodes: [alpha, beta, gamma, delta],
+            edges: [
+                alpha: [beta],
+                beta: [alpha],
+                gamma: [delta],
+                delta: [gamma]
+            ]
+        )
+
+        // When
+        let result = sut.detectNewCycles(in: head, comparedTo: base)
+
+        // Then
+        #expect(result == [Cycle(path: [delta, gamma])])
+    }
 }
 
 private extension CycleDetectorTests {

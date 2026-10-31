@@ -8,15 +8,18 @@
 import Foundation
 import SwiftAtlasCore
 
-do {
-    let arguments = CommandLine.arguments
+let usage = "Usage: swift run swiftatlas <path> [--base <path>]"
 
-    guard arguments.count == 2 else {
-        print("Wrong number of arguments. Usage: swift run swiftatlas <swift_file_or_directory_path>")
+do {
+    let arguments = Array(CommandLine.arguments.dropFirst())
+
+    guard let path = arguments.first else {
+        print("Wrong number of arguments. \(usage)")
         exit(1)
     }
 
-    let path = arguments[1]
+    let basePath = parseBasePath(from: Array(arguments.dropFirst()))
+
     var isDirectory: ObjCBool = false
     guard FileManager.default.fileExists(atPath: path, isDirectory: &isDirectory) else {
         print("No file or directory found at path: \(path)")
@@ -30,19 +33,34 @@ do {
         let packageManifestPath = directoryURL.appendingPathComponent("Package.swift").path
 
         if FileManager.default.fileExists(atPath: packageManifestPath) {
-            let project = try analyzer.analyze(package: directoryURL)
+            let headGraph = DependencyGraph(project: try analyzer.analyze(package: directoryURL))
 
-            let graph = DependencyGraph(project: project)
-            let cycles = CycleDetector().detectCycles(in: graph)
-            printCycles(cycles)
+            if let basePath {
+                let baseGraph = DependencyGraph(project: try analyzer.analyze(package: URL(fileURLWithPath: basePath)))
+                let newCycles = CycleDetector().detectNewCycles(in: headGraph, comparedTo: baseGraph)
+                printNewCycles(newCycles)
 
-            if !cycles.isEmpty {
-                exit(1)
+                if !newCycles.isEmpty {
+                    exit(1)
+                }
+            } else {
+                let cycles = CycleDetector().detectCycles(in: headGraph)
+                printCycles(cycles)
+
+                if !cycles.isEmpty {
+                    exit(1)
+                }
             }
+        } else if basePath != nil {
+            print("--base is only supported when <path> is a Swift package (a directory containing Package.swift).")
+            exit(1)
         } else {
             let sourceFiles = try analyzer.analyze(directory: directoryURL)
             sourceFiles.forEach(printResults(for:))
         }
+    } else if basePath != nil {
+        print("--base is only supported when <path> is a Swift package (a directory containing Package.swift).")
+        exit(1)
     } else {
         let source = try String(contentsOf: URL(fileURLWithPath: path), encoding: .utf8)
         printResults(for: analyzer.analyze(source: source))
@@ -52,6 +70,17 @@ do {
     exit(1)
 }
 
+func parseBasePath(from remainingArguments: [String]) -> String? {
+    guard !remainingArguments.isEmpty else { return nil }
+
+    guard remainingArguments.count == 2, remainingArguments[0] == "--base" else {
+        print("Wrong number of arguments. \(usage)")
+        exit(1)
+    }
+
+    return remainingArguments[1]
+}
+
 func printCycles(_ cycles: [Cycle]) {
     guard !cycles.isEmpty else {
         print("No potential retain cycles detected.")
@@ -59,6 +88,20 @@ func printCycles(_ cycles: [Cycle]) {
     }
 
     print("Detected \(cycles.count) potential retain cycle(s):")
+    printCyclePaths(cycles)
+}
+
+func printNewCycles(_ cycles: [Cycle]) {
+    guard !cycles.isEmpty else {
+        print("No newly introduced potential retain cycles detected.")
+        return
+    }
+
+    print("Detected \(cycles.count) newly introduced potential retain cycle(s):")
+    printCyclePaths(cycles)
+}
+
+func printCyclePaths(_ cycles: [Cycle]) {
     cycles.forEach { cycle in
         let names = (cycle.path + [cycle.path[0]]).map { "\($0.module).\($0.name)" }
         print("  " + names.joined(separator: " -> "))

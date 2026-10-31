@@ -21,6 +21,14 @@ public struct CycleDetector {
 
         return cycles
     }
+
+    /// Cycles present in `head` but not already present in `base` — the set
+    /// a PR check should actually fail on, since a pre-existing cycle isn't
+    /// something the current change introduced.
+    public func detectNewCycles(in head: DependencyGraph, comparedTo base: DependencyGraph) -> [Cycle] {
+        let baseCycles = Set(detectCycles(in: base))
+        return detectCycles(in: head).filter { !baseCycles.contains($0) }
+    }
 }
 
 private extension CycleDetector {
