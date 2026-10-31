@@ -161,9 +161,8 @@ without introducing a separate application to maintain.
 
 # Current Implementation Status
 
-SwiftAtlas is currently in early development (`v0.1`).
-
-The current focus is establishing the foundation for source analysis.
+SwiftAtlas has shipped a complete pipeline from source parsing through retain-cycle
+detection enforced in CI, distributed as a reusable, zero-configuration GitHub Action.
 
 ---
 
@@ -172,28 +171,88 @@ The current focus is establishing the foundation for source analysis.
 Implemented:
 
 - SwiftSyntax dependency integration
-- Source file parsing
-- Syntax tree traversal
-
-The initial approach uses visitors to extract information from Swift source files.
+- Source file parsing — a single file, a plain directory, or a full Swift package
+  (via `swift package dump-package`, analyzing every target)
+- Syntax tree traversal via dedicated visitors (`ClassVisitor`, `StructVisitor`,
+  `EnumVisitor`, `ProtocolVisitor`), each responsible only for extraction
 
 ---
 
-## Class Analysis
+## Declaration & Property Analysis
 
 Implemented:
 
-### ClassVisitor
+Visitors extract class, struct, enum, and protocol declarations, converting SwiftSyntax
+nodes into SwiftAtlas-owned domain models (`ClassNode`, `StructNode`, `EnumNode`,
+`ProtocolNode`) without leaking SwiftSyntax types past the parsing layer.
 
-Responsible for traversing SwiftSyntax nodes and detecting class declarations.
+For classes, stored instance properties are also extracted (`PropertyNode`),
+distinguishing genuinely stored properties — including ones with `willSet`/`didSet`
+observers — from computed ones, and capturing ownership (`weak` / `unowned` / strong).
 
-Responsibilities:
+---
 
-- Locate class declarations
-- Extract class-related information
-- Convert syntax information into domain representations
+## Project-Wide Type Resolution
 
-The visitor layer should remain focused on extraction only.
+Implemented:
+
+`TypeResolver` resolves every inherited-type and property-type reference against a
+project-wide index of declared types, turning an `.unresolved(name)` reference into
+`.resolved(TypeIdentity)`, `.external(name)` (a name not declared anywhere in the
+project, e.g. `AnyObject` or `Codable`), or `.ambiguous(name)` (more than one match).
+
+---
+
+## Dependency Graph & Retain Cycle Detection
+
+Implemented:
+
+`DependencyGraph` builds a strong-reference graph from a resolved project: a node is a
+class, or a protocol conformed to by at least one analyzed class; an edge represents a
+non-`weak`/`unowned` stored property, or a conformance from a protocol to the class that
+implements it. This captures both direct class-to-class references and the idiomatic
+delegate pattern (`weak var delegate: SomeDelegateProtocol?`) — correctness comes from
+only ever drawing a conformance edge to a class actually parsed from the project, so a
+protocol with no observed conformer is a harmless dead end rather than a false positive.
+
+`CycleDetector` finds cycles in that graph with a depth-first search: each node is
+tracked as unvisited, in-progress (on the current DFS path), or fully visited, and a
+cycle is recorded whenever an edge leads to a node still in progress. Every cycle is
+normalized to a canonical rotation — starting at its lexicographically smallest node —
+so the same cycle is reported once regardless of where the traversal happened to enter
+it.
+
+`CycleDetector.detectNewCycles` diffs two graphs (a pull request's base and head),
+reporting only cycles absent from the base. A cycle already present before the change
+isn't something the change introduced, and isn't flagged — the detail that makes the
+check adoptable on a real, pre-existing codebase rather than only a clean one.
+
+---
+
+## CLI
+
+Implemented:
+
+The `swiftatlas` executable analyzes a single file, a directory, or a full Swift
+package, printing a retain-cycle report for packages. An optional `--base <path>`
+argument compares against another checkout and reports only newly introduced cycles.
+The CLI exits non-zero whenever a cycle (or newly introduced cycle) is found, so it can
+drive a CI failure.
+
+---
+
+## CI Integration
+
+Implemented:
+
+SwiftAtlas ships `action.yml`, a composite GitHub Action any Swift project can adopt
+with a single `uses: chtzimas/SwiftAtlas@main` step in its own workflow — no
+configuration required. On a pull request it builds and runs `swiftatlas` against the
+consuming repository, automatically checks out the PR's base commit to diff against,
+fails the check if a newly introduced retain cycle is found, and posts one PR comment
+that updates in place on every subsequent push instead of accumulating duplicates.
+
+This repository dogfoods the same Action on itself (`.github/workflows/ci.yml`).
 
 ---
 
@@ -295,7 +354,7 @@ Capabilities:
 
 Current status:
 
-In progress.
+Complete.
 
 ---
 
@@ -316,6 +375,13 @@ Potential models:
 - ProjectNode
 - ModuleNode
 - DependencyNode
+
+Current status:
+
+Complete. `ProjectNode`/`ModuleNode` analyze a full Swift package across every target,
+and cross-module type references are resolved project-wide. A standalone `DependencyNode`
+model was never introduced — dependency relationships are instead represented directly
+by `DependencyGraph` (see v0.3), which made a separate node type unnecessary.
 
 ---
 
@@ -339,11 +405,26 @@ Detect newly introduced dependency cycles and fail a pull request check when
 one appears. This is the first capability targeted for CI enforcement, and it
 requires no configuration or rule authoring from the consuming project.
 
+Current status:
+
+The first CI goal is complete: `DependencyGraph` and `CycleDetector` detect retain
+cycles — direct class-to-class strong references and the protocol-typed delegate
+pattern — diff newly introduced cycles against a PR's base branch, and are enforced via
+a zero-configuration, reusable GitHub Action (see "CI Integration" above). This is what
+the dependency-cycle-detection slice of this milestone turned out to mean in practice:
+inheritance-cycle detection was considered and deliberately dropped, since the Swift
+compiler already forbids any inheritance or protocol-inheritance cycle from compiling,
+so a dedicated check for it could never fire on real code. The broader, more
+exploratory capabilities on this list — general relationship/dependency/inheritance
+graph visualization and open-ended "architecture exploration" — are not currently being
+pursued; development has paused at this milestone as a deliberately complete,
+self-contained capability rather than continuing toward those.
+
 ---
 
 ## Future Vision
 
-Potential future capabilities:
+Potential future capabilities, not currently planned or in progress:
 
 - Architecture diagrams as CI/PR artifacts
 - CI architecture reports
