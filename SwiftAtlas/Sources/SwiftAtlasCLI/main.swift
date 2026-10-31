@@ -36,6 +36,10 @@ do {
             let graph = DependencyGraph(project: project)
             let cycles = CycleDetector().detectCycles(in: graph)
             printCycles(cycles)
+
+            if !cycles.isEmpty {
+                exit(1)
+            }
         } else {
             let sourceFiles = try analyzer.analyze(directory: directoryURL)
             sourceFiles.forEach(printResults(for:))
@@ -46,6 +50,7 @@ do {
     }
 } catch {
     print("Error: \(error)")
+    exit(1)
 }
 
 func printResults(for project: ProjectNode) {
