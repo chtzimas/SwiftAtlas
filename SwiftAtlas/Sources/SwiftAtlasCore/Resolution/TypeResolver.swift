@@ -67,7 +67,15 @@ private extension TypeResolver {
     }
 
     func resolve(_ node: ClassNode, using index: Index) -> ClassNode {
-        ClassNode(name: node.name, inheritedTypes: node.inheritedTypes.map { resolve($0, using: index) })
+        ClassNode(
+            name: node.name,
+            inheritedTypes: node.inheritedTypes.map { resolve($0, using: index) },
+            properties: node.properties.map { resolve($0, using: index) }
+        )
+    }
+
+    func resolve(_ property: PropertyNode, using index: Index) -> PropertyNode {
+        PropertyNode(name: property.name, type: resolve(property.type, using: index), ownership: property.ownership)
     }
 
     func resolve(_ node: StructNode, using index: Index) -> StructNode {
