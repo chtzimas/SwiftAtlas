@@ -5,10 +5,17 @@
 //  Created by Christos Tzimas on 31/10/26.
 //
 
-/// A graph of strong, class-to-class stored-property references — the
-/// relationships that can produce a retain cycle. A node is a class; an edge
-/// from A to B means A holds a non-`weak`/`unowned` stored property whose
-/// type resolves to class B.
+/// A graph of strong-reference relationships that can produce a retain
+/// cycle. A node is a class or a protocol conformed to by at least one
+/// analyzed class. An edge from A to B means either: A holds a non-`weak`/
+/// `unowned` stored property whose type resolves to B (a class, or a
+/// protocol — the latter covers the idiomatic delegate pattern, since
+/// any conforming class could be assigned there); or B is a class that
+/// conforms to protocol A, which is how such a property can end up
+/// strongly holding B in practice. Only conformances actually observed on
+/// a parsed `ClassNode` produce an edge, so a protocol a struct happens to
+/// also satisfy never introduces a false reference — there's no edge to
+/// anything but the classes it's genuinely implemented by.
 public struct DependencyGraph: Equatable {
     public let nodes: Set<TypeIdentity>
     public let edges: [TypeIdentity: Set<TypeIdentity>]
@@ -28,17 +35,30 @@ public struct DependencyGraph: Equatable {
                     let identity = TypeIdentity(module: module.name, name: classNode.name, kind: .class)
                     nodes.insert(identity)
 
-                    let strongClassDependencies = classNode.properties.compactMap { property -> TypeIdentity? in
+                    let strongDependencies = classNode.properties.compactMap { property -> TypeIdentity? in
                         guard property.ownership == .strong,
                               case .resolved(let target) = property.type,
-                              target.kind == .class else {
+                              target.kind == .class || target.kind == .protocol else {
                             return nil
                         }
                         return target
                     }
 
-                    guard !strongClassDependencies.isEmpty else { continue }
-                    edges[identity, default: []].formUnion(strongClassDependencies)
+                    if !strongDependencies.isEmpty {
+                        edges[identity, default: []].formUnion(strongDependencies)
+                    }
+
+                    let conformedProtocols = classNode.inheritedTypes.compactMap { reference -> TypeIdentity? in
+                        guard case .resolved(let target) = reference, target.kind == .protocol else {
+                            return nil
+                        }
+                        return target
+                    }
+
+                    for protocolIdentity in conformedProtocols {
+                        nodes.insert(protocolIdentity)
+                        edges[protocolIdentity, default: []].insert(identity)
+                    }
                 }
             }
         }

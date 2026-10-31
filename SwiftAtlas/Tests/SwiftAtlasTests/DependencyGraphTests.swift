@@ -95,6 +95,134 @@ struct DependencyGraphTests {
         // Then
         #expect(sut.dependencies(of: unknown).isEmpty)
     }
+
+    @Test
+    func addsAnEdgeForAStrongPropertyResolvedToAProtocol() {
+
+        // Given: Delegate declares no AnyObject constraint at all
+        let delegateProtocol = TypeIdentity(module: "FeatureA", name: "Delegate", kind: .protocol)
+        let project = ProjectNode(
+            name: "Fixture",
+            modules: [
+                ModuleNode(
+                    name: "FeatureA",
+                    sourceFiles: [
+                        SourceFileNode(
+                            classes: [
+                                ClassNode(
+                                    name: "Owner",
+                                    properties: [
+                                        PropertyNode(name: "delegate", type: .resolved(delegateProtocol), ownership: .strong)
+                                    ]
+                                )
+                            ],
+                            protocols: [ProtocolNode(name: "Delegate")]
+                        )
+                    ]
+                )
+            ]
+        )
+        let sut = DependencyGraph(project: project)
+
+        // Then
+        #expect(sut.dependencies(of: TypeIdentity(module: "FeatureA", name: "Owner", kind: .class)) == [delegateProtocol])
+    }
+
+    @Test
+    func aProtocolWithNoConformingClassHasNoFurtherDependencies() {
+
+        // Given: Owner strongly references Plain, but nothing in the project conforms to it
+        let plainProtocol = TypeIdentity(module: "FeatureA", name: "Plain", kind: .protocol)
+        let project = ProjectNode(
+            name: "Fixture",
+            modules: [
+                ModuleNode(
+                    name: "FeatureA",
+                    sourceFiles: [
+                        SourceFileNode(
+                            classes: [
+                                ClassNode(
+                                    name: "Owner",
+                                    properties: [
+                                        PropertyNode(name: "value", type: .resolved(plainProtocol), ownership: .strong)
+                                    ]
+                                )
+                            ],
+                            protocols: [ProtocolNode(name: "Plain")]
+                        )
+                    ]
+                )
+            ]
+        )
+        let sut = DependencyGraph(project: project)
+
+        // Then: the protocol node is a dead end, so it can't complete a cycle
+        #expect(sut.dependencies(of: plainProtocol).isEmpty)
+    }
+
+    @Test
+    func addsAConformanceEdgeFromAProtocolToEachConformingClass() {
+
+        // Given: Delegate declares no AnyObject constraint at all
+        let delegateProtocol = TypeIdentity(module: "FeatureA", name: "Delegate", kind: .protocol)
+        let conformerIdentity = TypeIdentity(module: "FeatureA", name: "Conformer", kind: .class)
+        let project = ProjectNode(
+            name: "Fixture",
+            modules: [
+                ModuleNode(
+                    name: "FeatureA",
+                    sourceFiles: [
+                        SourceFileNode(
+                            classes: [
+                                ClassNode(name: "Conformer", inheritedTypes: [.resolved(delegateProtocol)])
+                            ],
+                            protocols: [ProtocolNode(name: "Delegate")]
+                        )
+                    ]
+                )
+            ]
+        )
+        let sut = DependencyGraph(project: project)
+
+        // Then
+        #expect(sut.nodes.contains(delegateProtocol))
+        #expect(sut.dependencies(of: delegateProtocol) == [conformerIdentity])
+    }
+
+    @Test
+    func detectsAThreeHopRetainCycleThroughAProtocolTypedProperty() {
+
+        // Given: ViewModel -(strong)-> Delegate -(conformed by)-> ViewController -(strong)-> ViewModel,
+        // where Delegate declares no AnyObject constraint — conformance alone is enough.
+        let sut = CycleDetector()
+        let graph = DependencyGraph(project: delegatePatternProject(delegateOwnership: .strong))
+
+        // When
+        let result = sut.detectCycles(in: graph)
+
+        // Then
+        #expect(result == [
+            Cycle(path: [
+                TypeIdentity(module: "FeatureA", name: "Delegate", kind: .protocol),
+                TypeIdentity(module: "FeatureA", name: "ViewController", kind: .class),
+                TypeIdentity(module: "FeatureA", name: "ViewModel", kind: .class)
+            ])
+        ])
+    }
+
+    @Test
+    func doesNotDetectACycleWhenTheProtocolTypedPropertyIsWeak() {
+
+        // Given: the same shape, but ViewModel.delegate is weak
+        let sut = CycleDetector()
+        let graph = DependencyGraph(project: delegatePatternProject(delegateOwnership: .weak))
+
+        // When
+        let result = sut.detectCycles(in: graph)
+
+        // Then
+        #expect(result.isEmpty)
+    }
 }
 
 private extension DependencyGraphTests {
@@ -148,4 +276,38 @@ private extension DependencyGraphTests {
     var ownerIdentity: TypeIdentity { TypeIdentity(module: "FeatureA", name: "Owner", kind: .class) }
     var childIdentity: TypeIdentity { TypeIdentity(module: "FeatureA", name: "Child", kind: .class) }
     var otherOwnerIdentity: TypeIdentity { TypeIdentity(module: "FeatureB", name: "OtherOwner", kind: .class) }
+
+    func delegatePatternProject(delegateOwnership: PropertyNode.Ownership) -> ProjectNode {
+        let delegateProtocol = TypeIdentity(module: "FeatureA", name: "Delegate", kind: .protocol)
+        let viewModelIdentity = TypeIdentity(module: "FeatureA", name: "ViewModel", kind: .class)
+
+        return ProjectNode(
+            name: "Fixture",
+            modules: [
+                ModuleNode(
+                    name: "FeatureA",
+                    sourceFiles: [
+                        SourceFileNode(
+                            classes: [
+                                ClassNode(
+                                    name: "ViewModel",
+                                    properties: [
+                                        PropertyNode(name: "delegate", type: .resolved(delegateProtocol), ownership: delegateOwnership)
+                                    ]
+                                ),
+                                ClassNode(
+                                    name: "ViewController",
+                                    inheritedTypes: [.resolved(delegateProtocol)],
+                                    properties: [
+                                        PropertyNode(name: "viewModel", type: .resolved(viewModelIdentity), ownership: .strong)
+                                    ]
+                                )
+                            ],
+                            protocols: [ProtocolNode(name: "Delegate")]
+                        )
+                    ]
+                )
+            ]
+        )
+    }
 }

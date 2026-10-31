@@ -27,7 +27,7 @@ jobs:
         run: swift test
 
   architecture-check:
-    name: Architecture Check
+    name: Retain Cycle Detection
     runs-on: macos-15
     permissions:
       pull-requests: write
