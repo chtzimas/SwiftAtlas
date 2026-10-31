@@ -2,38 +2,25 @@
 
 ## Project Overview
 
-SwiftAtlas is a static architecture analysis and visualization tool for Swift projects.
+SwiftAtlas is a static analysis tool for Swift projects. It parses Swift source, builds
+a project-wide dependency graph of strong-reference relationships between types, and
+detects retain cycles in that graph — both direct class-to-class references and the
+idiomatic protocol-typed delegate pattern.
 
-Its goal is to help developers understand complex Swift codebases by transforming source code into a meaningful architectural representation.
-
-Instead of navigating thousands of lines of code to understand relationships between components, developers should be able to inspect a high-level model of their system:
-
-- Types and their relationships
-- Inheritance hierarchies
-- Protocol conformances
-- Module boundaries
-- Dependencies
-- Architecture evolution over time
-
-SwiftAtlas aims to become an architecture intelligence layer for Swift projects.
+It ships as a CLI (`swiftatlas`) and as a reusable, zero-configuration GitHub Action: a
+project adopts it with one workflow step, and it fails a pull request check only when
+the change introduces a new retain cycle, not on every pre-existing one.
 
 ---
 
-# Vision
+# Why
 
-Understanding an unfamiliar codebase is one of the hardest parts of software development.
-
-Modern applications often contain hundreds or thousands of files, making architecture knowledge difficult to acquire and maintain.
-
-SwiftAtlas exists to reduce this friction by automatically extracting architectural information from Swift source code and presenting it in a form that developers can understand.
-
-The long-term vision is a tool that can answer questions such as:
-
-- How is this application structured?
-- What are the main architectural components?
-- How are modules connected?
-- Which components depend on each other?
-- How has the architecture changed between versions?
+Retain cycles are a common, easy-to-introduce, hard-to-spot source of memory leaks in
+Swift — usually a missing `weak`/`unowned` on a delegate or a parent/child
+back-reference. They're also mechanical to detect: a strong-reference cycle is a graph
+problem, and graph problems are exactly what deterministic static analysis is good at.
+SwiftAtlas exists to catch that specific, well-scoped problem automatically, in CI,
+before it ships.
 
 ---
 
@@ -74,7 +61,7 @@ SwiftAtlas is not intended to become:
 - A linter
 - A generic AI code assistant
 
-The focus is architecture understanding and visualization.
+The focus is retain cycle detection via deterministic static analysis.
 
 ---
 
@@ -128,7 +115,6 @@ Analysis / Graph Layer
 Output Layer
         |
         +--> CLI
-        +--> Visualization
         +--> CI Reports
 ```
 
@@ -146,16 +132,11 @@ Current technologies:
 - Swift Package Manager
 - SwiftSyntax
 - Swift CLI tools
+- GitHub Actions (shipped as a composite Action, `action.yml`)
 
-Future possibilities:
-
-- CI integrations
-- Architecture visualization as CLI-emitted artifacts (e.g. diagrams posted to a pull request)
-- AI-assisted explanations
-
-A standalone macOS application for visualization is not part of the roadmap.
-The CLI, combined with CI-emitted artifacts, covers the visualization need
-without introducing a separate application to maintain.
+A standalone macOS application was considered and rejected: the CLI, combined with
+CI-emitted PR comments, covers the need without introducing a separate application to
+maintain.
 
 ---
 
@@ -389,15 +370,16 @@ by `DependencyGraph` (see v0.3), which made a separate node type unnecessary.
 
 Goal:
 
-Build a graph representation of a Swift application architecture.
+Build a graph representation of a Swift application architecture, focused on detecting
+retain cycles.
 
-Potential capabilities:
+Capabilities:
 
-- Relationship graphs
-- Dependency visualization
-- Inheritance graphs
-- Architecture exploration
-- Dependency cycle detection
+- A dependency graph of strong-reference relationships between types
+- Retain cycle detection — direct class-to-class references and the protocol-typed
+  delegate pattern
+- Diffing against a pull request's base branch, so only newly introduced cycles are
+  flagged
 
 First CI goal:
 
@@ -407,30 +389,14 @@ requires no configuration or rule authoring from the consuming project.
 
 Current status:
 
-The first CI goal is complete: `DependencyGraph` and `CycleDetector` detect retain
-cycles — direct class-to-class strong references and the protocol-typed delegate
-pattern — diff newly introduced cycles against a PR's base branch, and are enforced via
-a zero-configuration, reusable GitHub Action (see "CI Integration" above). This is what
-the dependency-cycle-detection slice of this milestone turned out to mean in practice:
-inheritance-cycle detection was considered and deliberately dropped, since the Swift
+Complete — see "Current Implementation Status" above for the full pipeline, and
+"CI Integration" for how it's enforced via a zero-configuration, reusable GitHub Action.
+Inheritance-cycle detection was considered and deliberately dropped, since the Swift
 compiler already forbids any inheritance or protocol-inheritance cycle from compiling,
-so a dedicated check for it could never fire on real code. The broader, more
-exploratory capabilities on this list — general relationship/dependency/inheritance
-graph visualization and open-ended "architecture exploration" — are not currently being
-pursued; development has paused at this milestone as a deliberately complete,
-self-contained capability rather than continuing toward those.
-
----
-
-## Future Vision
-
-Potential future capabilities, not currently planned or in progress:
-
-- Architecture diagrams as CI/PR artifacts
-- CI architecture reports
-- Architecture rules
-- Pull request architecture diffing
-- AI-assisted architecture explanations
+so a dedicated check for it could never fire on real code. Broader, more exploratory
+capabilities originally considered for this milestone — general relationship graph
+visualization and open-ended "architecture exploration" — were not pursued; development
+concluded at this milestone as a deliberately scoped, complete capability.
 
 ---
 

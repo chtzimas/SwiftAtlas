@@ -1,22 +1,20 @@
 # SwiftAtlas
-Understand your Swift architecture—without reading thousands of lines of code.
-
-> Static architecture analysis for Swift projects, starting with retain cycle detection enforced in CI.
+A static analysis CLI and GitHub Action that detects retain cycles in Swift projects.
 
 ## Overview
 
-SwiftAtlas is a deterministic static analysis tool for Swift codebases. It parses Swift source with [SwiftSyntax](https://github.com/swiftlang/swift-syntax), builds a project-wide domain model, and today uses that model to find a specific, high-value architectural problem: **retain cycles** — classes holding strong references to each other, usually a missing `weak`/`unowned`, that silently leak memory.
+SwiftAtlas parses Swift source with [SwiftSyntax](https://github.com/swiftlang/swift-syntax), builds a project-wide dependency graph of strong-reference relationships between types, and detects retain cycles in that graph — classes holding strong references to each other, usually a missing `weak`/`unowned`, that silently leak memory. This covers both direct class-to-class references and the idiomatic protocol-typed delegate pattern (`weak var delegate: SomeDelegateProtocol?`).
 
 It ships two ways to use that analysis:
 
 - A CLI (`swiftatlas`) you can run against any Swift file, directory, or package.
-- A reusable, zero-configuration [GitHub Action](action.yml) any Swift project can drop into its own CI with one step.
+- A reusable, zero-configuration [GitHub Action](action.yml) any Swift project can drop into its own CI with one step. It fails a pull request check only when the change introduces a *new* cycle, not on every pre-existing one.
 
-See [CONTEXT.md](CONTEXT.md) for the full project vision, design philosophy, and roadmap.
+See [CONTEXT.md](CONTEXT.md) for the project's design philosophy and conventions.
 
 ## Project Status
 
-SwiftAtlas is at **v0.3 (Architecture Graph)**. Retain cycle detection — the milestone's first CI goal — is complete and validated end-to-end, both against this repository's own code and against a separate external consumer repository.
+Retain cycle detection is complete and validated end-to-end, both against this repository's own code and against a separate external consumer repository.
 
 ## What's implemented
 
@@ -73,11 +71,6 @@ jobs:
 - [x] Create a CLI (`swiftatlas`)
 - [x] Detect retain cycles and fail CI only on newly introduced ones
 - [x] Ship as a reusable, zero-configuration GitHub Action
-- [ ] Emit architecture diagrams as CI/PR artifacts
-- [ ] Add further architecture rules
-- [ ] Explore AI-assisted architecture analysis
-
-The last three are documented in [CONTEXT.md](CONTEXT.md) as possible future directions; they are not currently in progress. Development has paused at this milestone as a deliberately complete, self-contained capability — see `CONTEXT.md`'s "Current Implementation Status" for the full reasoning.
 
 ## License
 
