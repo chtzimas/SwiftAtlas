@@ -25,3 +25,18 @@ jobs:
 
       - name: Run tests
         run: swift test
+
+  architecture-check:
+    name: Architecture Check
+    runs-on: macos-15
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: SwiftAtlas
+        uses: ./
+        with:
+          path: SwiftAtlas
+          github-token: ${{ secrets.GITHUB_TOKEN }}

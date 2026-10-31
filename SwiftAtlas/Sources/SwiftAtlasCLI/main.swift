@@ -31,11 +31,14 @@ do {
 
         if FileManager.default.fileExists(atPath: packageManifestPath) {
             let project = try analyzer.analyze(package: directoryURL)
-            printResults(for: project)
 
             let graph = DependencyGraph(project: project)
             let cycles = CycleDetector().detectCycles(in: graph)
             printCycles(cycles)
+
+            if !cycles.isEmpty {
+                exit(1)
+            }
         } else {
             let sourceFiles = try analyzer.analyze(directory: directoryURL)
             sourceFiles.forEach(printResults(for:))
@@ -46,31 +49,20 @@ do {
     }
 } catch {
     print("Error: \(error)")
-}
-
-func printResults(for project: ProjectNode) {
-    guard project.hasDeclarations else { return }
-
-    print("Project: \(project.name)")
-    project.modules.forEach(printResults(for:))
+    exit(1)
 }
 
 func printCycles(_ cycles: [Cycle]) {
-    guard !cycles.isEmpty else { return }
+    guard !cycles.isEmpty else {
+        print("No potential retain cycles detected.")
+        return
+    }
 
-    print("========================================================")
     print("Detected \(cycles.count) potential retain cycle(s):")
     cycles.forEach { cycle in
         let names = (cycle.path + [cycle.path[0]]).map { "\($0.module).\($0.name)" }
         print("  " + names.joined(separator: " -> "))
     }
-}
-
-func printResults(for module: ModuleNode) {
-    guard module.hasDeclarations else { return }
-
-    print("Module: \(module.name)")
-    module.sourceFiles.forEach(printResults(for:))
 }
 
 func printResults(for sourceFile: SourceFileNode) {
