@@ -74,4 +74,4 @@ jobs:
 
 ## License
 
-SwiftAtlas is public; a license has not yet been chosen.
+[MIT](LICENSE)
