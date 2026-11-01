@@ -60,3 +60,7 @@ fastlane/report.xml
 fastlane/Preview.html
 fastlane/screenshots/**/*.png
 fastlane/test_output
+
+# Local AI assistant project instructions — not published
+CLAUDE.md
+CONTEXT.md
