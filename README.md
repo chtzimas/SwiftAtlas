@@ -4,6 +4,14 @@ A static analysis CLI and GitHub Action that detects retain cycles in Swift proj
 [![CI](https://github.com/chtzimas/SwiftAtlas/actions/workflows/ci.yml/badge.svg)](https://github.com/chtzimas/SwiftAtlas/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/github/license/chtzimas/SwiftAtlas)](LICENSE)
 
+A pull request that introduces a retain cycle fails the check with the exact cycle traced out; fixing it turns the check green automatically — this is a real run from [chtzimas/swiftatlas-action-demo](https://github.com/chtzimas/swiftatlas-action-demo), a separate repo used to validate the Action end-to-end:
+
+<p align="center">
+  <img src="docs/images/check-failing.png" alt="SwiftAtlas failing a PR check with a detected retain cycle" width="700">
+  <br>
+  <img src="docs/images/check-passing.png" alt="SwiftAtlas passing after the retain cycle is fixed" width="700">
+</p>
+
 ## Overview
 
 SwiftAtlas parses Swift source with [SwiftSyntax](https://github.com/swiftlang/swift-syntax), builds a project-wide dependency graph of strong-reference relationships between types, and detects retain cycles in that graph — classes holding strong references to each other, usually a missing `weak`/`unowned`, that silently leak memory. This covers both direct class-to-class references and the idiomatic protocol-typed delegate pattern (`weak var delegate: SomeDelegateProtocol?`).
@@ -15,7 +23,7 @@ It ships two ways to use that analysis:
 
 ## Project Status
 
-Retain cycle detection is complete and validated end-to-end, both against this repository's own code and against a separate external consumer repository.
+Retain cycle detection is complete and validated end-to-end, both against this repository's own code and against a [separate external consumer repository](https://github.com/chtzimas/swiftatlas-action-demo).
 
 ## What's implemented
 
