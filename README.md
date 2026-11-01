@@ -1,6 +1,9 @@
 # SwiftAtlas
 A static analysis CLI and GitHub Action that detects retain cycles in Swift projects.
 
+[![CI](https://github.com/chtzimas/SwiftAtlas/actions/workflows/ci.yml/badge.svg)](https://github.com/chtzimas/SwiftAtlas/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/github/license/chtzimas/SwiftAtlas)](LICENSE)
+
 ## Overview
 
 SwiftAtlas parses Swift source with [SwiftSyntax](https://github.com/swiftlang/swift-syntax), builds a project-wide dependency graph of strong-reference relationships between types, and detects retain cycles in that graph — classes holding strong references to each other, usually a missing `weak`/`unowned`, that silently leak memory. This covers both direct class-to-class references and the idiomatic protocol-typed delegate pattern (`weak var delegate: SomeDelegateProtocol?`).
@@ -55,7 +58,7 @@ jobs:
       pull-requests: write
     steps:
       - uses: actions/checkout@v4
-      - uses: chtzimas/SwiftAtlas@main
+      - uses: chtzimas/SwiftAtlas@v1
         with:
           path: '.'
           github-token: ${{ secrets.GITHUB_TOKEN }}
