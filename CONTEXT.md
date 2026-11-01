@@ -227,7 +227,7 @@ drive a CI failure.
 Implemented:
 
 SwiftAtlas ships `action.yml`, a composite GitHub Action any Swift project can adopt
-with a single `uses: chtzimas/SwiftAtlas@main` step in its own workflow — no
+with a single `uses: chtzimas/SwiftAtlas@v1` step in its own workflow — no
 configuration required. On a pull request it builds and runs `swiftatlas` against the
 consuming repository, automatically checks out the PR's base commit to diff against,
 fails the check if a newly introduced retain cycle is found, and posts one PR comment
