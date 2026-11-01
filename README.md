@@ -13,8 +13,6 @@ It ships two ways to use that analysis:
 - A CLI (`swiftatlas`) you can run against any Swift file, directory, or package.
 - A reusable, zero-configuration [GitHub Action](action.yml) any Swift project can drop into its own CI with one step. It fails a pull request check only when the change introduces a *new* cycle, not on every pre-existing one.
 
-See [CONTEXT.md](CONTEXT.md) for the project's design philosophy and conventions.
-
 ## Project Status
 
 Retain cycle detection is complete and validated end-to-end, both against this repository's own code and against a separate external consumer repository.
