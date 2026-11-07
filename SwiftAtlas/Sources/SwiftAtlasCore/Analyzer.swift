@@ -61,6 +61,19 @@ public final class Analyzer {
 
         return TypeResolver().resolve(project)
     }
+
+    /// Like `analyze(package:)`, but returns an empty project instead of
+    /// throwing when no package exists at `directory`. Meant for a PR's base
+    /// commit when diffing: the package under analysis may not have existed
+    /// yet there (a PR introducing it for the first time) — nothing existed
+    /// to compare against, so there's nothing to report, not an error.
+    public func analyzeIfPackageExists(at directory: URL) throws -> ProjectNode {
+        let manifestPath = directory.appendingPathComponent("Package.swift").path
+        guard FileManager.default.fileExists(atPath: manifestPath) else {
+            return ProjectNode(name: directory.lastPathComponent)
+        }
+        return try analyze(package: directory)
+    }
 }
 
 private extension Analyzer {
