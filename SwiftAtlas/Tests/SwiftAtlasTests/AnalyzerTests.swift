@@ -100,6 +100,49 @@ struct AnalyzerTests {
         // Then
         #expect(result == expectedProject)
     }
+
+    @Test
+    func analyzeIfPackageExistsMatchesAnalyzeWhenPackagePresent() throws {
+
+        // Given
+        let sut = sut
+        let directory = fixturePackageDirectory
+        let expectedProject = fixtureProject
+
+        // When
+        let result = try sut.analyzeIfPackageExists(at: directory)
+
+        // Then
+        #expect(result == expectedProject)
+    }
+
+    @Test
+    func analyzeIfPackageExistsReturnsEmptyProjectWhenNoPackageSwiftPresent() throws {
+
+        // Given
+        let sut = sut
+        let directory = fixtureDirectory // has Swift files but no Package.swift
+
+        // When
+        let result = try sut.analyzeIfPackageExists(at: directory)
+
+        // Then
+        #expect(result.modules.isEmpty)
+    }
+
+    @Test
+    func analyzeIfPackageExistsReturnsEmptyProjectWhenDirectoryDoesNotExist() throws {
+
+        // Given
+        let sut = sut
+        let directory = fixturePackageDirectory.appendingPathComponent("does-not-exist")
+
+        // When
+        let result = try sut.analyzeIfPackageExists(at: directory)
+
+        // Then
+        #expect(result.modules.isEmpty)
+    }
 }
 
 // MARK: - Factory

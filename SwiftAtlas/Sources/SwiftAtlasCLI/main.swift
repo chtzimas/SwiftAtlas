@@ -36,7 +36,7 @@ do {
             let headGraph = DependencyGraph(project: try analyzer.analyze(package: directoryURL))
 
             if let basePath {
-                let baseGraph = DependencyGraph(project: try analyzer.analyze(package: URL(fileURLWithPath: basePath)))
+                let baseGraph = DependencyGraph(project: try analyzer.analyzeIfPackageExists(at: URL(fileURLWithPath: basePath)))
                 let newCycles = CycleDetector().detectNewCycles(in: headGraph, comparedTo: baseGraph)
                 printNewCycles(newCycles)
 
